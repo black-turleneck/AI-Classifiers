@@ -152,19 +152,19 @@ public class MyClassifier {
 		
 		//for each test, compute Bayes method maths with prob dens function
 		for (double[] testing_ex : testing) {
-			//wrong!! there should be a diff prob function for each index (attribute)
 			for (int i = 0; i < 8; i++) {
-			yes_fctn = yes_fctn*probFunction(testing_ex[i], meanyes[i], sdyes[i]);
-			no_fctn = no_fctn*probFunction(testing_ex[i], meanno[i], sdno[i]);
-			//System.out.println("wat??"); 
-			//System.out.println(testing_ex[i]);
-			//System.out.println(meanyes[i]);
-			//System.out.println(sdyes[i]);
-			if (i == 0) {
-				var_test =testing_ex[i];
-				meanyes_test = meanyes[i];
-				sdyes_test = sdyes[i];
-			}
+				if (sdyes[i] != 0) {
+					yes_fctn = yes_fctn*probFunction(testing_ex[i], meanyes[i], sdyes[i]);
+				} else {
+					yes_fctn = 1;
+				}
+
+				if (sdno[i] != 0) {
+					no_fctn = no_fctn*probFunction(testing_ex[i], meanno[i], sdno[i]);
+				}
+				else {
+					no_fctn = 1;
+				}
 			}
 			yes_fctn = yes_fctn*probyes;
 			no_fctn = no_fctn*probno;
@@ -378,6 +378,7 @@ public class MyClassifier {
 			curr_index++;
 		}		
 		return furthest_index;
-	}	
+	}
+	
 	
 }
