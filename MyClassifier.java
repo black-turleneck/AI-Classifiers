@@ -144,6 +144,8 @@ public class MyClassifier {
 		double probno = n_no/n_total;
 		
 		double yes_fctn = 1;
+//		System.out.println("Should work");
+//		System.out.println(yes_fctn);
 		double no_fctn = 1;	
 		
 		double var_test = 0;
@@ -154,23 +156,24 @@ public class MyClassifier {
 		for (double[] testing_ex : testing) {
 			for (int i = 0; i < 8; i++) {
 				if (sdyes[i] != 0) {
+					//all sds are Nan??
 					yes_fctn = yes_fctn*probFunction(testing_ex[i], meanyes[i], sdyes[i]);
-				} else {
-					yes_fctn = 1;
+//					System.out.println("Not sure if works");
+//					System.out.println(testing_ex[i]);
+//					System.out.println(meanyes[i]);
+//					System.out.println(sdyes[i]);
+//					System.out.println(yes_fctn);
 				}
-
 				if (sdno[i] != 0) {
 					no_fctn = no_fctn*probFunction(testing_ex[i], meanno[i], sdno[i]);
 				}
-				else {
-					no_fctn = 1;
-				}
 			}
+//			System.out.println(yes_fctn);
+//			System.out.println(no_fctn);
+			
 			yes_fctn = yes_fctn*probyes;
 			no_fctn = no_fctn*probno;
 			
-			System.out.println(yes_fctn);
-			System.out.println(no_fctn);
 			if (yes_fctn >= no_fctn) {
 				System.out.println("yes");
 			}
@@ -237,17 +240,19 @@ public class MyClassifier {
 			//do some testing
 		}
 
-		System.out.println("Calc stdev");
+//		System.out.println("Calc stdev");
 		//standard deviation
 		for (double[] training_ex : training) {
 			//if example is class yes
 			if (training_ex[8] == 1) {
 				for (int i = 0; i < 8; i++) {
 					diffyes[i] += Math.sqrt(training_ex[i] - meanyes[i]); 
-					System.out.println("For yes: training_ex[i], meanyes[i], diffyes[i] is: ");
-					System.out.println(training_ex[i]);
-					System.out.println(meanyes[i]);
-					System.out.println(diffyes[i]);
+					if (i == 0) {
+//					System.out.println("Calc stdev for: training_ex[i], meanyes[i], diffyes[i] is: ");
+//					System.out.println(training_ex[i]);
+//					System.out.println(meanyes[i]);
+//					System.out.println(diffyes[i]);
+					}
 				}
 			}
 			//if class no
@@ -259,13 +264,24 @@ public class MyClassifier {
 			else {
 				System.out.println("Something went wrong: Not class yes or no");
 			}				
-			System.out.println(Arrays.toString(diffyes));
+//			System.out.println(Arrays.toString(diffyes));
 		}
 
 		for (int i = 0; i < 8; i++) {
-			sdyes[i] = diffyes[i] / (n_yes - 1);
-			sdno[i] = Math.sqrt(diffno[i] / (n_no - 1));
+			if (diffyes[i] == 0) {
+				sdyes[i] = 0;
+			}
+			else {
+			sdyes[i] = Math.sqrt(diffyes[i]) / (n_yes - 1);
+			sdno[i] = Math.sqrt(diffno[i]) / (n_no - 1);
+			}
 			//do some testing
+			if (i == 0) {
+//				System.out.println("sdyes[i] for: diffyes[i], n_yes is: ");
+//				System.out.println(diffyes[i]);
+//				System.out.println(n_yes);
+//				System.out.println(sdyes[i]);
+				}
 		}
 		
 		
