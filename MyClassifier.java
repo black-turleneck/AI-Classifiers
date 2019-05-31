@@ -51,7 +51,7 @@ public class MyClassifier {
 		else {
 			System.out.println("*Something went wrong: kNN format*");
 		}
-		System.out.println("*End of program*");
+		//System.out.println("*End of program*");//!
 	}
 	//end of Main method
 	//supporting methods:
@@ -59,7 +59,7 @@ public class MyClassifier {
 
 	private static void kNearestNeighbour(int k, ArrayList<double[]> training, ArrayList<double[]> testing) {
 		
-		System.out.println("Starting kNN with k = " + k);
+		//!System.out.println("Starting kNN with k = " + k);//!
 		// vars: Num, lists
 		// for each example in testing list
 		// calculate Euclidean distance to each training example 
@@ -71,7 +71,7 @@ public class MyClassifier {
 		for(double[] testing_ex : testing) {
 			//this arraylist stores arrays of doubles, of the form [distance, class], with class 0 or 1
 			ArrayList<double[]> k_nearest = new ArrayList<double[]>();
-			System.out.println("New test");
+			//!System.out.println("New test");//!
 			
 			//for each test line, go through all TRAINING examples
 			int n = 0;
@@ -83,24 +83,18 @@ public class MyClassifier {
 				
 				if (n < k) {
 					k_nearest.add(combined);
-					System.out.println("Adding to nearest: " + Arrays.toString(combined));
+					//!System.out.println("Adding to nearest: " + Arrays.toString(combined));//!
 				}
 				else {
 					int furthest = find_furthest_index(k_nearest);
 					if (combined[0] < k_nearest.get(furthest)[0]) {
 						//replaces furthest element in k_nearest by current var
-						System.out.println("Adding to nearest: " + Arrays.toString(combined));
-						System.out.println("Removing from nearest: " + Arrays.toString(k_nearest.get(furthest)));
+						//!System.out.println("Adding to nearest: " + Arrays.toString(combined));//!
+						//!System.out.println("Removing from nearest: " + Arrays.toString(k_nearest.get(furthest)));//!
 						k_nearest.set(furthest, combined);
 						//display length of AList?
 					}					
 				}
-				//display ArrayList
-				System.out.println("Current nearest neighbours: ");
-				for (double[] neigh : k_nearest) {
-					System.out.println(Arrays.toString(neigh));
-				}
-				
 			n++;	
 			}
 			
@@ -128,7 +122,7 @@ public class MyClassifier {
 				System.out.println("no");
 			}			
 		}
-		System.out.println("*End of kNN*");		
+		//!System.out.println("*End of kNN*");//!		
 	}
 
 
@@ -159,7 +153,7 @@ public class MyClassifier {
 				double sth = Double.parseDouble(entry_str[i]);
 				entry[i] = sth;			
 			}
-			System.out.println("Digit form (training file): " + Arrays.toString(entry));
+			//!System.out.println("Digit form (training file): " + Arrays.toString(entry));//!
 			training_data.add(entry);
 		}
 		return training_data;
@@ -182,7 +176,7 @@ public class MyClassifier {
 				entry[i] = sth;			
 			}
 			
-			System.out.println("Digit form (testing file): " + Arrays.toString(entry));
+			//!System.out.println("Digit form (testing file): " + Arrays.toString(entry));//!
 			testing_data.add(entry);
 		}
 		return testing_data;
@@ -193,15 +187,15 @@ public class MyClassifier {
 		// for first 8 attributes:
 		double dist = 0;
 		// assumes correct num of attributes
-		System.out.println("Calculating Euclidean distance...");
-		System.out.println(Arrays.toString(a));
-		System.out.println(Arrays.toString(b));
+		//!System.out.println("Calculating Euclidean distance...");//!
+		//!System.out.println(Arrays.toString(a));//!
+		//!System.out.println(Arrays.toString(b));//!
 		for (int i = 0; i < 8; i++) {
 			//difference squared of each dimension
 			dist += Math.pow(Math.abs(a[i] - b[i]),2);
 		}
 		dist = Math.sqrt(dist);
-		System.out.println("Distance is " + dist);
+		//!System.out.println("Distance is " + dist);//!
 		
 		return dist;
 	}
@@ -239,4 +233,3 @@ public class MyClassifier {
 	
 	
 }
-
