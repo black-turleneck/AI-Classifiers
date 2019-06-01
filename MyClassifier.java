@@ -1,4 +1,5 @@
-//if standard deviation is  0, set prob dens fctn to 1!!!
+//if standard deviation is  0, set prob dens fctn to 1!!!  --> done
+//there ust be something wrong with the implementation of Standard deviation calculation
 
 
 import java.io.*;
@@ -143,9 +144,12 @@ public class MyClassifier {
 		double probyes = n_yes/n_total;
 		double probno = n_no/n_total;
 		
+		
+		
 		double yes_fctn = 1;
 //		System.out.println("Should work");
-//		System.out.println(yes_fctn);
+		System.out.println(Arrays.toString(sdyes));
+		//thyr're all NaN
 		double no_fctn = 1;	
 		
 		double var_test = 0;
@@ -158,21 +162,24 @@ public class MyClassifier {
 				if (sdyes[i] != 0) {
 					//all sds are Nan??
 					yes_fctn = yes_fctn*probFunction(testing_ex[i], meanyes[i], sdyes[i]);
-//					System.out.println("Not sure if works");
-//					System.out.println(testing_ex[i]);
-//					System.out.println(meanyes[i]);
-//					System.out.println(sdyes[i]);
-//					System.out.println(yes_fctn);
+					//System.out.println("Calc pdf_yes from testing_ex[i], meanyes[i], sdyes[i]: ");
+					//System.out.println(testing_ex[i]);
+					//System.out.println(meanyes[i]);
+					//System.out.println(sdyes[i]);
+					//System.out.println(yes_fctn);
 				}
 				if (sdno[i] != 0) {
 					no_fctn = no_fctn*probFunction(testing_ex[i], meanno[i], sdno[i]);
 				}
 			}
-//			System.out.println(yes_fctn);
-//			System.out.println(no_fctn);
+			//System.out.println(yes_fctn);
+			//System.out.println(no_fctn);
 			
 			yes_fctn = yes_fctn*probyes;
 			no_fctn = no_fctn*probno;
+			
+			//System.out.println(yes_fctn);
+			//System.out.println(no_fctn);
 			
 			if (yes_fctn >= no_fctn) {
 				System.out.println("yes");
@@ -201,14 +208,14 @@ public class MyClassifier {
 	
 	public static ArrayList<double[]> getStats(ArrayList<double[]> training) {
 		ArrayList<double[]> stats = new ArrayList<double[]>();
-		double[] sumyes = new double[8];
-		double[] sumno = new double[8];
-		double[] meanyes = new double[8];
-		double[] meanno = new double[8];
-		double[] diffyes = new double[8];
-		double[] diffno = new double[8];
-		double[] sdyes = new double[8];
-		double[] sdno = new double[8];
+		double[] sumyes = {0,0,0,0,0,0,0,0};
+		double[] sumno = {0,0,0,0,0,0,0,0};
+		double[] meanyes = {0,0,0,0,0,0,0,0};
+		double[] meanno = {0,0,0,0,0,0,0,0};
+		double[] diffyes = {0,0,0,0,0,0,0,0};
+		double[] diffno = {0,0,0,0,0,0,0,0};
+		double[] sdyes = {0,0,0,0,0,0,0,0};
+		double[] sdno = {0,0,0,0,0,0,0,0};
 		double n_yes = 0;
 		double n_no = 0;
 		double[] nums = {n_yes, n_no};
@@ -224,7 +231,7 @@ public class MyClassifier {
 			//if class no
 			else if (training_ex[8] == 0) { 
 				for (int i = 0; i < 8; i++) {
-					sumno[i] += training_ex[i];
+					sumno[i] = sumno[i] + training_ex[i];
 				}
 				n_no++;
 			}
@@ -239,15 +246,20 @@ public class MyClassifier {
 			meanno[i] = sumno[i] / n_no;
 			//do some testing
 		}
+		System.out.println("Mean works:");
+		System.out.println(Arrays.toString(meanyes));
 
-//		System.out.println("Calc stdev");
+		
 		//standard deviation
 		for (double[] training_ex : training) {
 			//if example is class yes
 			if (training_ex[8] == 1) {
-				for (int i = 0; i < 8; i++) {
-					diffyes[i] += Math.sqrt(training_ex[i] - meanyes[i]); 
-					if (i == 0) {
+				for (int i = 0; i < 8; i++) {									
+						diffyes[i] += Math.pow(training_ex[i] - meanno[i], 2); //what if mean > x? abs is a dit dodge
+						if (i == 0) {
+							System.out.println("Before vs after doing diff:");
+							System.out.println(diffyes[i]);	
+							System.out.println(diffyes[i]);	
 //					System.out.println("Calc stdev for: training_ex[i], meanyes[i], diffyes[i] is: ");
 //					System.out.println(training_ex[i]);
 //					System.out.println(meanyes[i]);
@@ -258,7 +270,7 @@ public class MyClassifier {
 			//if class no
 			else if (training_ex[8] == 0) {
 				for (int i = 0; i < 8; i++) {
-					diffno[i] = diffno[i] + Math.sqrt(training_ex[i] - meanno[i]); 
+					diffno[i] = diffno[i] + Math.pow(training_ex[i] - meanno[i], 2); 
 				}
 			}
 			else {
@@ -268,13 +280,13 @@ public class MyClassifier {
 		}
 
 		for (int i = 0; i < 8; i++) {
-			if (diffyes[i] == 0) {
-				sdyes[i] = 0;
-			}
-			else {
-			sdyes[i] = Math.sqrt(diffyes[i]) / (n_yes - 1);
-			sdno[i] = Math.sqrt(diffno[i]) / (n_no - 1);
-			}
+//			if (diffyes[i] == 0) {
+//				sdyes[i] = 0;
+//			}
+//			else {
+			sdyes[i] = Math.sqrt(diffyes[i] / (n_yes - 1));
+			sdno[i] = Math.sqrt(diffno[i] / (n_no - 1));
+//			}
 			//do some testing
 			if (i == 0) {
 //				System.out.println("sdyes[i] for: diffyes[i], n_yes is: ");
