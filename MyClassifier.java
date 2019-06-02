@@ -1,6 +1,4 @@
 //if standard deviation is  0, set prob dens fctn to 1!!!
-
-
 import java.io.*;
 import java.util.*;
 
@@ -130,8 +128,9 @@ public class MyClassifier {
 
 
 	private static void naiveBayes(ArrayList<double[]> training, ArrayList<double[]> testing) {
-		//find mean and stdev for each attribute (1 to 8 --i.e. 0 to 7), for yes & no respectively		
-		ArrayList<double[]> stats = getStats(training);
+		//find mean and stdev for each attribute (1 to n --i.e. 0 to n-1), for yes & no respectively		
+		int num_attr = testing.get(0).length;
+		ArrayList<double[]> stats = getStats(training, num_attr);
 		double[] meanyes = stats.get(0);
 		double[] meanno = stats.get(1);
 		double[] sdyes = stats.get(2);
@@ -143,49 +142,55 @@ public class MyClassifier {
 		double probyes = n_yes/n_total;
 		double probno = n_no/n_total;
 		
-		double yes_fctn = 1;
-		double no_fctn = 1;	
+		double[] pdfyes = new double[num_attr];
+		double[] pdfno = new double[num_attr];
 		
-		double var_test = 0;
-		double meanyes_test = 0;
-		double sdyes_test = 0;
+//		System.out.println("Mean and stdev at start is: ");
+//		System.out.println(Arrays.toString(meanyes));
+//		System.out.println(Arrays.toString(meanno));
+//		System.out.println(Arrays.toString(sdyes));
+//		System.out.println(Arrays.toString(sdno));
+		
+//		double var_test = 0;
+//		double meanyes_test = 0;
+//		double sdyes_test = 0;
 		
 		//for each test, compute Bayes method maths with prob dens function
 		for (double[] testing_ex : testing) {
-			//wrong!! there should be a diff prob function for each index (attribute)
-			for (int i = 0; i < 8; i++) {
-				if (sdyes[i] == 0 ) {
-					yes_fctn = 1;
+			//!!there should be a diff prob function for each index (attribute)
+			for (int i = 0; i < num_attr; i++) {
+				if (sdyes[i] == 0 || Double.isNaN(sdyes[i])) {
+					pdfyes[i] = 1;
+					//System.out.println("pdf of yes is 1");
 				}
 				else {
-					yes_fctn = yes_fctn*probFunction(testing_ex[i], meanyes[i], sdyes[i]);
+					pdfyes[i] = probFunction(testing_ex[i], meanyes[i], sdyes[i]);
+					//System.out.println("pdf of yes is good!");
 				}
 				
-				if (sdno[i] == 0 ) {
-					no_fctn = 1;
+				if (sdno[i] == 0 || Double.isNaN(sdno[i])) {
+					pdfno[i] = 1;
 				}
 				else {
-					no_fctn = no_fctn*probFunction(testing_ex[i], meanno[i], sdno[i]);
+					pdfno[i] = probFunction(testing_ex[i], meanno[i], sdno[i]);
 				}
-			//System.out.println("wat??"); 
-			//System.out.println(testing_ex[i]);
-			//System.out.println(meanyes[i]);
-			//System.out.println(sdyes[i]);
-//			if (i == 0) {
-//				var_test =testing_ex[i];
-//				meanyes_test = meanyes[i];
-//				sdyes_test = sdyes[i];
-//			}
 			}
-			yes_fctn = yes_fctn*probyes;
-			no_fctn = no_fctn*probno;
 			
-//			System.out.println(yes_fctn);
-//			System.out.println(no_fctn);
-			if (yes_fctn >= no_fctn) {
+			//multiply the pdfs of the different attributes together
+			double pdfyes_all = 1;
+			double pdfno_all = 1;
+			for (int i = 0; i < num_attr; i++) {
+				pdfyes_all = pdfyes_all*pdfyes[i];
+				pdfno_all = pdfno_all*pdfno[i];
+			}
+			
+			double yes_func = pdfyes_all*probyes;
+			double no_func = pdfno_all*probno;
+			
+			if (yes_func >= no_func) {
 				System.out.println("yes");
 			}
-			else if (no_fctn > yes_fctn) {
+			else if (no_func > yes_func) {
 				System.out.println("no");
 			}
 			else {
@@ -207,31 +212,33 @@ public class MyClassifier {
 	}
 	
 	
-	public static ArrayList<double[]> getStats(ArrayList<double[]> training) {
+	public static ArrayList<double[]> getStats(ArrayList<double[]> training, int num_attr) {
 		ArrayList<double[]> stats = new ArrayList<double[]>();
-		double[] sumyes = new double[8];
-		double[] sumno = new double[8];
-		double[] meanyes = new double[8];
-		double[] meanno = new double[8];
-		double[] diffyes = new double[8];
-		double[] diffno = new double[8];
-		double[] sdyes = new double[8];
-		double[] sdno = new double[8];
+		double[] sumyes = new double[num_attr];
+		double[] sumno = new double[num_attr];
+		double[] meanyes = new double[num_attr];
+		double[] meanno = new double[num_attr];
+		double[] diffyes = new double[num_attr];
+		double[] diffno = new double[num_attr];
+		double[] sdyes = new double[num_attr];
+		double[] sdno = new double[num_attr];
 		double n_yes = 0;
 		double n_no = 0;
 		double[] nums = {n_yes, n_no};
+		
+		//calc mean
 		for (double[] training_ex : training) {
 			//if example is class yes
-			if (training_ex[8] == 1) {
-				for (int i = 0; i < 8; i++) {
+			if (training_ex[num_attr] == 1) {
+				for (int i = 0; i < num_attr; i++) {
 					//do I have to initialise this to all 0 for sum?
 					sumyes[i] += training_ex[i];
 				}
 				n_yes++;
 			} 
 			//if class no
-			else if (training_ex[8] == 0) { 
-				for (int i = 0; i < 8; i++) {
+			else if (training_ex[num_attr] == 0) { 
+				for (int i = 0; i < num_attr; i++) {
 					sumno[i] += training_ex[i];
 				}
 				n_no++;
@@ -242,38 +249,32 @@ public class MyClassifier {
 		}
 
 		//divide each index by n
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < num_attr; i++) {
 			meanyes[i] = sumyes[i] / n_yes;
 			meanno[i] = sumno[i] / n_no;
 			//do some testing
 		}
 
-//		System.out.println("Calc stdev");
-		//standard deviation
+		//Calculate standard deviation
 		for (double[] training_ex : training) {
 			//if example is class yes
-			if (training_ex[8] == 1) {
-				for (int i = 0; i < 8; i++) {
+			if (training_ex[num_attr] == 1) {
+				for (int i = 0; i < num_attr; i++) {
 					diffyes[i] += Math.pow((training_ex[i] - meanyes[i]),2); 
-//					System.out.println("For yes: training_ex[i], meanyes[i], diffyes[i] is: ");
-//					System.out.println(training_ex[i]);
-//					System.out.println(meanyes[i]);
-//					System.out.println(diffyes[i]);
 				}
 			}
 			//if class no
-			else if (training_ex[8] == 0) {
-				for (int i = 0; i < 8; i++) {
+			else if (training_ex[num_attr] == 0) {
+				for (int i = 0; i < num_attr; i++) {
 					diffno[i] = diffno[i] + Math.pow((training_ex[i] - meanno[i]),2); 
 				}
 			}
 			else {
 				System.out.println("Something went wrong: Not class yes or no");
 			}				
-			//System.out.println(Arrays.toString(diffyes));
 		}
 
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < num_attr; i++) {
 			sdyes[i] = Math.sqrt(diffyes[i] / (n_yes - 1));
 			sdno[i] = Math.sqrt(diffno[i] / (n_no - 1));
 			//do some testing
@@ -344,7 +345,7 @@ public class MyClassifier {
 
 	
 	private static double dist_Euclidean(double[] a, double[] b) {
-		// for first 8 attributes:
+		// for first n attributes:
 		double dist = 0;
 		// assumes correct num of attributes
 		//!System.out.println("Calculating Euclidean distance...");//!
